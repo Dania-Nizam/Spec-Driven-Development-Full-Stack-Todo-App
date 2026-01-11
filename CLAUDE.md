@@ -208,3 +208,10 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
+
+## Active Technologies
+- Python 3.11+ (required by spec) + FastAPI, SQLModel, python-jose, passlib, Neon PostgreSQL driver (001-backend-spec-manager)
+- Neon Serverless PostgreSQL database (DATABASE_URL) (001-backend-spec-manager)
+
+## Recent Changes
+- 001-backend-spec-manager: Added Python 3.11+ (required by spec) + FastAPI, SQLModel, python-jose, passlib, Neon PostgreSQL driver
