@@ -124,7 +124,46 @@ All work flows: **Plan → Spec → Constitution Review → Code Generation → 
 - Any violation of this constitution results in rejection and required rework.
 - Goal: Maximum score (150 points Phase II + bonuses) and Panaversity opportunity.
 
-### 10.1 Source of truth
+## 11. Phase III Updates: AI-Powered Conversational Chatbot
+
+### 11.1 Phase III Goal
+
+Build an integrated conversational AI chatbot on top of Phase II full-stack app, allowing natural language management of Todo lists (e.g., "Add a high-priority task to buy groceries tomorrow", "Reschedule my morning meetings to 2 PM", "Show my pending tasks"). The chatbot must implement all Basic, Intermediate, and Advanced Todo features via natural language processing.
+
+### 11.2 Technology Stack Extensions
+
+- Frontend: OpenAI ChatKit for conversational UI integration
+- Backend: OpenAI Agents SDK for agent orchestration and tool calling
+- Protocol: Official MCP SDK for Model Context Protocol (expose Todo operations as MCP tools/server for standardized integration and stateful conversations)
+- Architecture: Central ChatbotOrchestratorAgent coordinates flow: NLP parsing → Auth check → Skill/tool calls → Response generation
+
+### 11.3 Reusable Intelligence (Bonus +200)
+
+- Define and use reusable Agent Skills (e.g., add_task_skill, update_task_skill, etc. in backend/agents/skills/todo_skills.py) registered in ChatbotOrchestratorAgent
+- Reuse Phase II subagents (auth-specialist, database-specialist, etc.) where possible
+- MCP SDK for conversation state persistence and tool exposure
+
+### 11.4 Security & Authentication Extension
+
+- All chatbot operations MUST respect Phase II JWT authentication (extract user_id from token/session, enforce isolation)
+- No anonymous Todo access in chat - every operation must be authenticated
+- MCP tools MUST securely wrap existing API endpoints with proper user isolation
+- Binding rule: Chatbot MUST call backend REST API via skills (no direct DB access in chat logic)
+
+### 11.5 User Experience & Error Handling
+
+- Friendly, natural responses that handle ambiguities, follow-ups, and confirmations
+- Support potential multi-language (Urdu) and voice integration for bonus features
+- Proper error recovery and graceful degradation when skills fail
+
+### 11.6 Development & Specification Requirements
+
+- Strictly Spec-Driven – new specs in /specs/features/chatbot.md, /specs/agent-skills.md, etc.
+- All code generated via Claude Code from refined specs
+- New folders/files for agents/skills, MCP server (e.g., mcp/server.py with tools), ChatKit integration in frontend
+- Monorepo extensions must maintain clear separation of concerns
+
+### 11.7 Source of truth
 
 - `.specify/memory/constitution.md` is the **sole authoritative** constitution.
 

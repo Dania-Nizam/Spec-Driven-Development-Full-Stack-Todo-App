@@ -1,39 +1,36 @@
+import sys
+import os
+
+# Add the project root to the Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from sqlmodel import SQLModel, select # SQLModel zaroori hai tables banane ke liye
+from sqlmodel import SQLModel
+
 from database.session import engine
+# Import all models so SQLModel.metadata knows about them
+from backend.models import User, Task, Conversation, Message
 
-# Routers Import
-from api.tasks import router as tasks_router
-try:
-    from api.auth import router as auth_router 
-except ImportError:
-    auth_router = None
+# ---------------- APP INIT ----------------
+app = FastAPI(title="Todo & Chat API", version="1.0.0")
 
-from middleware import CanonicalPathMiddleware
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
-
-# Rate limiter setup
-limiter = Limiter(key_func=get_remote_address)
-
-app = FastAPI(
-    title="Todo API",
-    description="Secure FastAPI backend with JWT and Neon PostgreSQL",
-    version="1.0.0",
-)
-
-# --- 1. DATABASE TABLES CREATION ---
-# Ye function backend start hote hi 'user' aur 'task' tables bana dega
+@app.get("/")
+def root():
+    return {
+        "message": "Backend chal raha hai! API docs ke liye jaao: http://localhost:8000/docs",
+        "status": "ok",
+        "routers_loaded": ["auth", "tasks"]  # chat load hone pe add kar dena
+    }
+# ---------------- DATABASE ----------------
 @app.on_event("startup")
 def on_startup():
-    print("Creating database tables...")
     SQLModel.metadata.create_all(engine)
-    print("Database tables ready!")
 
-# --- 2. CORS FIX ---
+
+# ---------------- CORS ----------------
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -42,35 +39,52 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-app.add_middleware(CanonicalPathMiddleware)
 
-# --- 3. ROUTERS (Fixed Duplicates) ---
-if auth_router:
-    # Prefix /api/auth lagane se frontend ki request sahi jagah jayegi
-    app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
+# ---------------- ROUTERS ----------------
 
-app.include_router(tasks_router)
+# ✅ Auth Router
+try:
+    from backend.api.auth import router as auth_router
+    app.include_router(auth_router, prefix="/api/auth", tags=["Auth"])
+    print("✅ Auth router loaded")
+except ImportError as e:
+    print(f"❌ Auth router not loaded: {e}")
 
-# Exception Handlers
+
+# ✅ Tasks Router
+try:
+    from backend.api.tasks import router as tasks_router
+    app.include_router(tasks_router, tags=["Tasks"])  # No prefix - routes already have full paths
+    print("✅ Tasks router loaded")
+except ImportError as e:
+    print(f"❌ Tasks router not loaded: {e}")
+
+
+## ✅ Chat Router
+try:
+    from backend.api.chat_new import router as chat_router
+    app.include_router(chat_router)  # prefix chat.py me hai
+    print("✅ Chat router loaded")
+except ImportError as e:
+    print(f"❌ Chat router error: {e}")
+
+## ✅ Conversations Router
+try:
+    from backend.api.conversations import router as conversations_router
+    app.include_router(conversations_router)
+    print("✅ Conversations router loaded")
+except ImportError as e:
+    print(f"❌ Conversations router error: {e}")
+# ---------------- ERROR HANDLER ----------------
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
-    codes = {401: "unauthorized", 403: "user_id_mismatch", 404: "not_found"}
     return JSONResponse(
         status_code=exc.status_code,
-        content={"error": codes.get(exc.status_code, "unknown_error")}
+        content={"error": str(exc.detail)},
     )
 
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to the Todo API"}
 
-@app.get("/health")
-@limiter.limit("10/minute")
-def health_check(request: Request):
-    return {"status": "healthy", "db_connected": True}
-
+# ---------------- RUN ----------------
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("main:app", host="0.0.0.0", port="8000", reload=True)

@@ -1,11 +1,11 @@
 import { ErrorResponse, handleFetchError, parseApiResponse } from './error-handler';
 import { authClient } from "./auth-client";
 
-// Backend API ka URL
+// Backend API URL
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 /**
- * Common API Client - Bina authentication waali requests ke liye
+ * Common API Client - For requests without authentication
  */
 class ApiClient {
   private baseUrl: string = BASE_URL;
@@ -22,7 +22,7 @@ class ApiClient {
         headers 
       });
 
-      // Agar response ok nahi hai (400, 404, 500 etc)
+      // If response is not ok (400, 404, 500 etc)
       if (!response.ok) {
         return handleFetchError(response);
       }

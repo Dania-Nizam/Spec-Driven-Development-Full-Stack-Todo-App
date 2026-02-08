@@ -7,9 +7,9 @@ import { Plus, AlertCircle, CheckCircle } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { createApiClientWithAuth } from "@/lib/api-client";
 import { isErrorResponse } from "@/lib/error-handler";
-import Navbar from "./components/Navbar";
-import TaskCard from "@/components/TaskCard";
-import TaskModal from "@/components/TaskModal";
+import Navbar from "../components/Navbar";
+import TaskCard from "../components/TaskCard";
+import TaskModal from "../components/TaskModal";
 
 // 2. Apni shared type use karein
 import { Task } from "@/types/task";

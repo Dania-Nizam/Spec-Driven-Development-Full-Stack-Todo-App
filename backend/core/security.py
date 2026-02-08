@@ -10,7 +10,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password: str):
-    # Ye passlib ko majboor karega ke wo 'bcrypt' library use kare
+    # This will force passlib to use the 'bcrypt' library
     return pwd_context.hash(password, scheme="bcrypt")
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
@@ -18,7 +18,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        # 15 minutes se barha kar 1440 (24 ghante) kar diya
+        # Increased from 15 minutes to 1440 (24 hours)
         expire = datetime.utcnow() + timedelta(minutes=1440)
 
     to_encode.update({"exp": expire})

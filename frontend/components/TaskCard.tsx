@@ -23,7 +23,7 @@ import { Task } from '@/types/task';
 interface TaskCardProps {
   task: Task;
   onTaskUpdate?: (updatedTask: Task) => void;
-  onTaskDelete?: (taskId: string) => void;
+  onTaskDelete?: (taskId: number) => void;
 }
 
 export default function TaskCard({ task, onTaskUpdate, onTaskDelete }: TaskCardProps) {
@@ -54,7 +54,7 @@ export default function TaskCard({ task, onTaskUpdate, onTaskDelete }: TaskCardP
     setIsLoading(true);
     try {
       const response = await authApiClient.patch<Partial<Task>>(
-        `/api/${user.id}/tasks/${localTask.id}/complete`,
+        `/api/${user.id}/tasks/${localTask.id}/toggle`,
         {}
       );
 

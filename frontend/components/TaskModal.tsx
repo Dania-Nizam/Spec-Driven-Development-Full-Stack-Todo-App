@@ -8,13 +8,13 @@ import { toast } from 'sonner';
 import { createApiClientWithAuth } from '@/lib/api-client';
 import { isErrorResponse } from '@/lib/error-handler';
 
-// 1. Apni banayi hui types file se Task import karein
+// 1. Import Task from our custom types file
 import { Task } from '@/types/task';
 
 interface TaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  // task optional hai kyunki "Create" ke waqt ye null hota hai
+  // task is optional because during "Create" it will be null
   task?: Task | null;
   onSave: (savedTask: Task) => void;
 }
@@ -59,7 +59,12 @@ export default function TaskModal({ isOpen, onClose, task, onSave }: TaskModalPr
         // Update existing task
         const response = await authApiClient.put<Task>(
           `/api/${userId}/tasks/${task.id}`,
-          { title, description }
+          {
+            title,
+            description,
+            priority: "Medium",
+            due_date: null
+          }
         );
 
         if (isErrorResponse(response)) {
@@ -73,7 +78,13 @@ export default function TaskModal({ isOpen, onClose, task, onSave }: TaskModalPr
         // Create new task
         const response = await authApiClient.post<Task>(
           `/api/${userId}/tasks`,
-          { title, description }
+          {
+            title,
+            description,
+            completed: false,
+            priority: "Medium",
+            due_date: null
+          }
         );
 
         if (isErrorResponse(response)) {

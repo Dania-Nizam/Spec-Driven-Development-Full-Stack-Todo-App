@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ReactNode } from "react";
-import Navbar from "./components/Navbar";
+import Navbar from "../components/Navbar";
 import { Toaster } from "sonner";
 // 1. AuthProvider ka import hata dein
 // import { AuthProvider } from "./providers/auth-provider"; 

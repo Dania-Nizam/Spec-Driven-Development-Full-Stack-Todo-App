@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from typing import List
-from models.user import Task, TaskCreate
-from api.deps import get_current_user
+from backend.models.user import Task, TaskCreate
+from .deps import get_current_user
 from database.session import get_session
 
 router = APIRouter()
@@ -30,12 +30,12 @@ async def create_task(
     if int(current_user["user_id"]) != int(user_id):
         raise HTTPException(status_code=403, detail="User ID mismatch")
     
-    # Naya task object banana (Directly assigning values)
+    # Create new task object (Directly assigning values)
     new_task = Task(
         title=task_data.title,
         description=task_data.description or "",
         completed=False,
-        priority=task_data.priority, # Schema se value uthayega
+        priority=task_data.priority, # Will take value from schema
         due_date=task_data.due_date,
         user_id=user_id
     )

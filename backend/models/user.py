@@ -3,17 +3,21 @@ from datetime import datetime
 from typing import Optional, List
 
 # 1. User Table
-class User(SQLModel, table=True):
+class User(SQLModel, table=True, extend_existing=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     email: str = Field(unique=True, index=True)
     full_name: Optional[str] = Field(default=None)
-    hashed_password: str = Field() 
+    hashed_password: str = Field()
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    # Relationships
     tasks: List["Task"] = Relationship(back_populates="user")
+    conversations: List["Conversation"] = Relationship(back_populates="user")
+    messages: List["Message"] = Relationship(back_populates="user")
 
 # 2. Task Table
 # 2. Task Table
-class Task(SQLModel, table=True):
+class Task(SQLModel, table=True, extend_existing=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     title: str = Field(min_length=1)
     description: Optional[str] = Field(default=None)
